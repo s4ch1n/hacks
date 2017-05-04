@@ -1,30 +1,31 @@
 #!/bin/bash
-# Batch process.
 
 ################# How to execute ################# 
-# 1. Input txt file location - Input file should contain the file list.
-# 2. Update group size Line # - it specifies the number of files to be processed 
-# 3. Replace <COMMAND> with the required command. 
+# 1. Pass Input txt file location in the command line 
+# 2. Update batch size Line # - it specifies the number of files to be processed at a time.
+# 3. Replace <COMMAND> with actual command. 
 ###################################################
 
 # Input file 
-filename=inputfile.txt
+filename="$1";
+batchSize=4
 
-lineCount=`cat $filename | wc -l `
-group=25 
-start=1; 
-end1=$group; 
+if [ "$1" == "" ] || [[ ! -f "$filename" ]] ; then
+  echo "File is missing";
+  exit 1;
+fi
 
-for((start=1;end1<lineCount;start=start+group,end1=end1+group)) 
-do 
-	echo "$start : $end1"
-    filesList=`sed -n "${start},${end1}p" $filename | tr '\n' ' ' `
-# Replace this command. 
-	<COMMAND> ${filesList}
- done 
+lineCount=`cat $filename | wc -l | tr -d ' '`
+[ $lineCount -eq 0 ] && echo "Empty file" && exit 0;
 
-# Replace this command. 
-filesList=`sed -n "${start},${end1}p" $filename | tr '\n' ' ' `
+startIndex=1;
+endIndex=$batchSize;
 
-<COMMAND> ${filesList}
-	
+for((startIndex=1;startIndex<=lineCount;startIndex=startIndex+batchSize,endIndex=endIndex+batchSize))
+  do
+    [ $endIndex -gt $lineCount ] && endIndex=$lineCount;
+    echo "$startIndex : $endIndex"
+    filesList=`sed -n "${startIndex},${endIndex}p" $filename | tr '\n' ' ' `
+    # Replace with actual command command.
+    # <COMMAND> ${filesList}
+done	
